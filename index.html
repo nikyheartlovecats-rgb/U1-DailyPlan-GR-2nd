@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colegio Montano - Interactive Digital Whiteboard</title>
+  <style>
+    :root {
+      --blue-main: #1269A8;
+      --yellow-bright: #F7D615;
+      --green-grayish: #54887D;
+      --blue-light: #88B5C7;
+      --green-olive-light: #A6B046;
+      --board-bg: #F2F5E9;
+      --card-bg: #FFFFFF;
+      --text-color: #2D3748;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--board-bg);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    header {
+      background-color: var(--blue-main);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header-left img {
+      height: 45px;
+      background-color: white;
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .header-title h1 {
+      font-size: 1.2rem;
+      color: var(--yellow-bright);
+    }
+
+    .header-title h2 {
+      font-size: 0.9rem;
+      font-weight: 400;
+    }
+
+    .fullscreen-btn {
+      background-color: var(--yellow-bright);
+      color: #000;
+      border: none;
+      padding: 8px 14px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .fullscreen-btn:hover {
+      background-color: #e5c30f;
+    }
+
+    .controls-panel {
+      background-color: var(--card-bg);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .control-group label {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: var(--green-grayish);
+      margin-bottom: 4px;
+    }
+
+    select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--blue-light);
+      font-size: 0.95rem;
+      outline: none;
+      background-color: #fff;
+    }
+
+    .meta-info {
+      background-color: var(--blue-light);
+      color: #0d3b5e;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 0.85rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+
+    .meta-info span {
+      display: block;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background-color: var(--green-grayish);
+      color: white;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-align: center;
+      transition: background 0.2s;
+      min-width: 140px;
+    }
+
+    .tab-btn.active {
+      background-color: var(--blue-main);
+      color: var(--yellow-bright);
+      border-bottom: 3px solid var(--yellow-bright);
+    }
+
+    .tab-content {
+      display: none;
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border: 2px solid var(--blue-main);
+      min-height: 300px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h3 {
+      color: var(--blue-main);
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      border-bottom: 2px solid var(--board-bg);
+      padding-bottom: 5px;
+    }
+
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    li {
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: white;
+      background-color: var(--green-olive-light);
+      margin-bottom: 10px;
+    }
+
+    .solution-btn {
+      background-color: var(--green-grayish);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 8px;
+      font-size: 0.85rem;
+    }
+
+    .solution-content {
+      display: none;
+      margin-top: 8px;
+      padding: 10px;
+      background-color: #eef4f8;
+      border-left: 4px solid var(--blue-main);
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .rubric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .rubric-table th, .rubric-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .rubric-table th {
+      background-color: var(--blue-main);
+      color: white;
+    }
+
+    .interactive-box {
+      background-color: #fff9db;
+      border: 1px dashed #d6a100;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: auto;
+      padding-top: 15px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyEop0yf6lZ7Jk9MILZxF1rBj4Oqs5esyhIQ&s" alt="Colegio Montano Logo">
+      <div class="header-title">
+        <h1>COLEGIO MONTANO</h1>
+        <h2>Digital Interactive Whiteboard - Daily Lesson Planner</h2>
+      </div>
+    </div>
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">📺 Fullscreen</button>
+  </header>
+
+  <div class="controls-panel">
+    <div class="control-group">
+      <label for="weekSelect">Select Week:</label>
+      <select id="weekSelect" onchange="updatePlan()">
+        <option value="1">Week 1 (Jan 11 - Jan 15)</option>
+        <option value="2">Week 2 (Jan 18 - Jan 22)</option>
+        <option value="3">Week 3 (Jan 25 - Jan 29)</option>
+        <option value="4">Week 4 (Feb 01 - Feb 05)</option>
+        <option value="5">Week 5 (Feb 08 - Feb 12)</option>
+        <option value="6">Week 6 (Feb 15 - Feb 19)</option>
+        <option value="7">Week 7 (Feb 22 - Feb 26)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="classSelect">Select Class Period:</label>
+      <select id="classSelect" onchange="updatePlan()">
+        <option value="1">Class 1 (50 min)</option>
+        <option value="2">Class 2 (50 min)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="meta-info" id="metaDisplay">
+    <!-- Populated by JS -->
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab1', this)">I) Warm Up (~5m)</button>
+    <button class="tab-btn" onclick="switchTab('tab2', this)">II) Individual Work (20m)</button>
+    <button class="tab-btn" onclick="switchTab('tab3', this)">III) Cooperative Work (30m)</button>
+    <button class="tab-btn" onclick="switchTab('tab4', this)">IV) Plenary & Game (15m)</button>
+  </div>
+
+  <div id="tab1" class="tab-content active"></div>
+  <div id="tab2" class="tab-content"></div>
+  <div id="tab3" class="tab-content"></div>
+  <div id="tab4" class="tab-content"></div>
+
+  <footer>
+    <p>Colegio Montano &copy; 2026 - Primary Grammar Department | Teacher: Nicole De León</p>
+  </footer>
+
+  <script>
+    const planData = {
+      // WEEK 1
+      "1-1": {
+        topic: "Present progressive, first person plural (We're / They're + verb-ing)",
+        bookRef: "Student Book pp. 16, 17 | Workbook p. 7",
+        cnb: "CNB 2nd Grade - Expressing collective ongoing actions using first person plural continuous structures.",
+        habit: "Habit 1: Be Proactive (I participate actively in group action songs and vocabulary practice).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "reading, writing, counting, drawing, gluing, cutting, coloring, talking, listening, erasing",
+          song: "Song Track TR 1.3: 'Our Classroom' - Sing and act out actions.",
+          activity: "Display classroom action cards. Teacher sings 'What are you doing today?' and students perform actions saying 'We're reading! We're writing!'"
+        },
+        individual: {
+          instructions: "Open Student Book pp. 16-17. Read exercises and trace present continuous phrases. Workbook p. 7.",
+          task: "Write 3 sentences in your notebook using 'We're...': e.g., 'We're cutting', 'We're gluing', 'We're reading'.",
+          solution: "Example answers: 1. We're cutting paper. 2. We're gluing shapes. 3. We're reading books."
+        },
+        cooperative: {
+          instructions: "Pair Work (Roles: Speaker & Actor). Student A acts out an action from page 16 with a partner. Student B asks: 'What are you doing?' Both respond: 'We're coloring!'"
+        },
+        plenary: {
+          game: "Classroom Action Charades (Group Trivia)",
+          questions: ["How do we form present continuous for 'We'?", "What action are we doing when using scissors?"],
+          rubric: true
+        }
+      },
+      "1-2": {
+        topic: "Present progressive, first person plural - Consolidation & Written Practice",
+        bookRef: "Student Book p. 17 | Workbook p. 8",
+        cnb: "CNB 2nd Grade - Structuring written present continuous sentences accurately in team contexts.",
+        habit: "Habit 2: Begin with the End in Mind (Setting clear goals for neat handwriting and accurate grammar).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "talking, listening, erasing, counting, gluing, writing",
+          song: "Song Track TR 1.3: 'Our Classroom' (Chorus: 'We're talking, we're writing...').",
+          activity: "Point to small student groups. Ask: 'What are you doing?' Encourage chorus answer: 'We're listening to our teacher!'"
+        },
+        individual: {
+          instructions: "Workbook p. 8. Look at pictures and complete sentences with 'We're [verb]-ing'.",
+          task: "Complete 4 sentences in Workbook p. 8: 1. We're _____ (color). 2. We're _____ (talk).",
+          solution: "1. We're coloring pictures. 2. We're talking. 3. We're listening to a story. 4. We're erasing the board."
+        },
+        cooperative: {
+          instructions: "Teams of 4. Student Book p. 17, Exercise 3. Team leader points to images. Members take turns stating: 'What are they doing?' -> 'They're gluing / counting'."
+        },
+        plenary: {
+          game: "Pasapalabra Grammar Challenge: Identify actions starting with C (counting/cutting), D (drawing), E (erasing).",
+          questions: ["How do we spell 'We're erasing'?", "What are two students with notebooks doing?"],
+          rubric: true
+        }
+      },
+
+      // WEEK 2
+      "2-1": {
+        topic: "Questions with 'Are there...?' and short answers",
+        bookRef: "Student Book p. 19 | Workbook p. 10",
+        cnb: "CNB 2nd Grade - Asking about existence and quantities of classroom objects.",
+        habit: "Habit 3: Put First Things First (Organizing supplies before starting quantity checks).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "glue, marker, notebook, paintbrush, scissors, desks, chairs",
+          song: "Song Track TR 1.3: 'Our Classroom' (Verse on supplies and objects).",
+          activity: "Show real classroom objects on table. Ask: 'Are there markers on the table?' Practice: 'Yes, there are / No, there aren't.'"
+        },
+        individual: {
+          instructions: "Student Book p. 19. Listen and read grammar box. Complete Workbook p. 10.",
+          task: "Write 3 questions with 'Are there...?' and short answers based on Student Book p. 19.",
+          solution: "1. Are there any markers? Yes, there are. 2. Are there any paintbrushes? No, there aren't."
+        },
+        cooperative: {
+          instructions: "Pair Work. 'Count My Desk'. Student A asks: 'Are there scissors on your desk?' Student B responds: 'Yes, there are!' or 'No, there aren't.' Swap roles."
+        },
+        plenary: {
+          game: "Supply Question Master Trivia: Quick flashcard reveal.",
+          questions: ["What is the short answer to 'Are there markers?' if positive?", "Complete: 'No, there _____.'"],
+          rubric: true
+        }
+      },
+      "2-2": {
+        topic: "Questions with 'Are there...?' - Written & Conversational Fluency",
+        bookRef: "Student Book p. 19 | Workbook p. 11",
+        cnb: "CNB 2nd Grade - Forming questions with 'Are there...?' and producing short answers in dialogue.",
+        habit: "Habit 4: Think Win-Win (Sharing items to ask and answer cooperatively).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "notebooks, paintbrushes, markers, scissors, glue sticks",
+          song: "Sing 'Our Classroom' while pointing to real supplies around the room.",
+          activity: "Hold up 3 notebooks. Ask: 'Are there notebooks?' Practice choral short answers."
+        },
+        individual: {
+          instructions: "Workbook p. 11. Match questions to correct short answers.",
+          task: "Answer 4 workbook questions using 'Yes, there are.' or 'No, there aren't.'",
+          solution: "1. Yes, there are. 2. No, there aren't. 3. Yes, there are. 4. No, there aren't."
+        },
+        cooperative: {
+          instructions: "Groups of 3. Mystery Pencil Case Activity. Feel items in a pouch without opening it completely: 'Are there 3 markers?' Partners check."
+        },
+        plenary: {
+          game: "Pasapalabra Question Wheel (Letter A = Are there..., Letter N = Notebooks, Letter S = Scissors).",
+          questions: ["Form a question about 5 paintbrushes.", "What is the opposite response to 'Yes, there are'?"],
+          rubric: true
+        }
+      },
+
+      // WEEK 3
+      "3-1": {
+        topic: "What's + noun + like? And answers using It's...",
+        bookRef: "Student Book pp. 32, 33 | Workbook p. 19",
+        cnb: "CNB 2nd Grade - Describing characteristics, weather, and objects using 'What's... like?'",
+        habit: "Habit 5: Seek First to Understand, Then to Be Understood (Listening carefully to weather and object descriptions).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "raincoat, boots, cloudy, rainy, hot, sunny, windy, sweater, cold, snowy",
+          song: "Song Track TR 2.3: 'Hot or Cold?' - Sing and move with weather gestures.",
+          activity: "Look out the window. Ask: 'What's the weather like today?' Students answer: 'It's sunny!' or 'It's cold!'"
+        },
+        individual: {
+          instructions: "Student Book pp. 32-33. Read grammar box. Complete Workbook p. 19.",
+          task: "Write 3 questions and answers in notebook: 'What's the weather like?' -> 'It's cold and rainy.'",
+          solution: "1. What's the weather like? It's sunny. 2. What's the sweater like? It's warm. 3. What's the coat like? It's big."
+        },
+        cooperative: {
+          instructions: "Pairs (Weather Reporter & Traveller). Student A asks: 'What's the weather like in Guatemala?' Student B: 'It's hot and sunny!' Swap roles."
+        },
+        plenary: {
+          game: "Weather Reporter Challenge Trivia",
+          questions: ["How do you ask about the weather using 'like'?", "Answer: 'What's the weather like in snowy places?'"],
+          rubric: true
+        }
+      },
+      "3-2": {
+        topic: "What's + noun + like? - Practice with Clothes & Weather",
+        bookRef: "Student Book p. 33 | Workbook p. 20",
+        cnb: "CNB 2nd Grade - Expressing qualities of clothing items according to weather conditions.",
+        habit: "Habit 6: Synergize (Working together to complete weather & outfit description cards).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "bathing suit, boots, gloves, hat, jacket, pants, raincoat, sweater",
+          song: "Song Track TR 2.3: 'Hot or Cold?' (Sing chorus emphasis).",
+          activity: "Show picture on Student Book p. 33. Ask: 'What's the raincoat like?' -> 'It's yellow and waterproof!'"
+        },
+        individual: {
+          instructions: "Workbook p. 20. Fill in missing question words and answers using 'It's...'.",
+          task: "Complete 4 sentences: 1. What's the weather like? It's _____ . 2. What's the coat like? It's _____ .",
+          solution: "1. It's rainy. 2. It's warm. 3. It's cold and snowy. 4. It's hot."
+        },
+        cooperative: {
+          instructions: "Groups of 4. 'Fashion & Weather Presenters'. Draw an outfit card. Partner asks: 'What's the jacket like?' Presenter answers: 'It's red and cold-weather ready!'"
+        },
+        plenary: {
+          game: "Pasapalabra Weather & Description (Letter R = Raincoat, Letter S = Sunny, Letter C = Cold).",
+          questions: ["How do we start the question '_____ the weather like?'", "Give an answer for hot weather."],
+          rubric: true
+        }
+      },
+
+      // WEEK 4
+      "4-1": {
+        topic: "Imperatives (Commands in classroom and daily context)",
+        bookRef: "Student Book p. 35 | Workbook p. 22",
+        cnb: "CNB 2nd Grade - Understanding and giving direct instructions and commands in English.",
+        habit: "Habit 7: Sharpen the Saw (Physical movement while performing imperative actions).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "put on, take off, open, close, listen, look, sit down, stand up",
+          song: "Song TR 2.3: 'Hot or Cold?' (Verse: 'Put on your boots, take off your coat').",
+          activity: "Teacher gives quick imperative commands: 'Put on your hat! Take off your sweater!' Students mime actions."
+        },
+        individual: {
+          instructions: "Student Book p. 35. Read imperatives grammar section. Workbook p. 22.",
+          task: "Copy 4 imperative command pairs into notebook (e.g., 'Put on your sneakers / Take off your sneakers').",
+          solution: "1. Put on your coat. 2. Take off your boots. 3. Open your book. 4. Close your door."
+        },
+        cooperative: {
+          instructions: "Pair Work. 'Teacher Says Imperatives'. Student A gives command: 'Put on your raincoat!' Student B acts it out immediately. Switch roles after 4 commands."
+        },
+        plenary: {
+          game: "Imperative Command Race Trivia",
+          questions: ["What is the opposite imperative of 'Put on'?", "Give a command for when it starts raining."],
+          rubric: true
+        }
+      },
+      "4-2": {
+        topic: "Imperatives - Written & Practical Application",
+        bookRef: "Student Book p. 35 | Workbook p. 23",
+        cnb: "CNB 2nd Grade - Writing positive and negative imperative forms correctly.",
+        habit: "Habit 1: Be Proactive (Following instructions independently and helping peers).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "shorts, sneakers, umbrella, coat, jeans, put on, take off",
+          song: "Sing 'Hot or Cold?' with action gestures for imperatives.",
+          activity: "Show flashcards with weather pictures. Call out corresponding imperatives."
+        },
+        individual: {
+          instructions: "Workbook p. 23. Complete imperative matching and fill-in-the-blank activities.",
+          task: "Complete 4 workbook exercises with correct imperative verbs.",
+          solution: "1. Put on your boots. 2. Take off your sweater. 3. Open your umbrella. 4. Look at the sun."
+        },
+        cooperative: {
+          instructions: "Teams of 3. 'Imperative Simon Says'. Teams take turns creating funny imperative sequences: 'Stand up, put on a hat, sit down!'"
+        },
+        plenary: {
+          game: "Grammar Tic-Tac-Toe on Whiteboard (Imperatives Edition)",
+          questions: ["Correct the mistake: 'Putting on your shoes!'", "Give an imperative using ' umbrella '."],
+          rubric: true
+        }
+      },
+
+      // WEEK 5
+      "5-1": {
+        topic: "Like + infinitive (Expressing preferences with 'like to...')",
+        bookRef: "Student Book pp. 48, 49 | Workbook p. 31",
+        cnb: "CNB 2nd Grade - Expressing personal hobbies and free time interests using 'like to + verb'.",
+        habit: "Habit 2: Begin with the End in Mind (Planning recreational activities with positive goals).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "play basketball, play a game, ride a bike, rollerblade, play soccer, fly a kite, jump rope",
+          song: "Song Track TR 3.3: 'Outside' - Listen and sing.",
+          activity: "Mime action verbs (riding a bike, flying a kite). Ask: 'Do you like to ride a bike?' Students shout: 'I like to ride a bike!'"
+        },
+        individual: {
+          instructions: "Student Book pp. 48-49. Read grammar rules for 'like + infinitive'. Workbook p. 31.",
+          task: "Write 4 sentences in notebook about what you like to do: 'I like to (verb)'.",
+          solution: "Example: 1. I like to play soccer. 2. I like to ride a bike. 3. I like to fly a kite. 4. I like to jump rope."
+        },
+        cooperative: {
+          instructions: "Pair Work (Student Book p. 49). Student A asks: 'What do you like to do outside?' Student B responds: 'I like to rollerblade!' Switch roles."
+        },
+        plenary: {
+          game: "Free Time Action Game (Trivia)",
+          questions: ["What structure follows 'I like' when using action verbs?", "Complete: 'She likes _____ (fly) a kite.'"],
+          rubric: true
+        }
+      },
+      "5-2": {
+        topic: "Like + infinitive - Questions & Short Answers ('Do you like to...?')",
+        bookRef: "Student Book p. 49 | Workbook p. 32",
+        cnb: "CNB 2nd Grade - Asking questions with 'Do you like to...' and formulating short answers.",
+        habit: "Habit 4: Think Win-Win (Finding common recreational interests with classmates).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "skateboard, play hide and seek, play basketball, jump rope, rollerblade, play soccer",
+          song: "Song Track TR 3.3: 'Outside' (Verse: 'Do you like to skateboard? No, I don't...').",
+          activity: "Ask class: 'Do you like to play soccer?' Students give thumbs up ('Yes, I do') or thumbs down ('No, I don't')."
+        },
+        individual: {
+          instructions: "Workbook p. 32. Read prompt dialogues and complete short answers.",
+          task: "Answer 4 questions in Workbook p. 32 using 'Yes, I do.' or 'No, I don't.'",
+          solution: "1. Yes, I do. 2. No, I don't. 3. Yes, I do. 4. No, I don't."
+        },
+        cooperative: {
+          instructions: "Groups of 4. 'Classroom Survey'. Interview group members: 'Do you like to jump rope?' Tally 'Yes, I do' vs 'No, I don't' answers."
+        },
+        plenary: {
+          game: "Pasapalabra Free Time Edition (Letter B = Bike/Basketball, Letter S = Soccer/Skateboard).",
+          questions: ["How do you answer 'Do you like to fly a kite?' positively?", "Name 3 sports with 'like to...'"],
+          rubric: true
+        }
+      },
+
+      // WEEK 6
+      "6-1": {
+        topic: "Suggestions with 'Let's + verb'",
+        bookRef: "Student Book p. 51 | Workbook p. 34",
+        cnb: "CNB 2nd Grade - Making friendly suggestions and inviting peers to participate in activities.",
+        habit: "Habit 6: Synergize (Inviting classmates to join group activities using 'Let's...').",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "bounce a ball, throw a ball, catch a ball, watch a game, play tag, play soccer",
+          song: "Song TR 3.3: 'Outside' chorus review.",
+          activity: "Propose fun suggestions to class: 'Let's play tag!' 'Let's bounce a ball!' Class responds: 'Great idea!'"
+        },
+        individual: {
+          instructions: "Student Book p. 51. Read 'Let's' grammar box. Complete Workbook p. 34.",
+          task: "Write 3 suggestion sentences in notebook using 'Let's...': e.g., 'Let's play tag.'",
+          solution: "1. Let's play soccer. 2. Let's bounce the ball. 3. Let's ride our bikes."
+        },
+        cooperative: {
+          instructions: "Pairs. Student A suggests an outdoor activity using 'Let's...'. Student B accepts with enthusiasm: 'Yes! Let me get the ball!' Swap roles."
+        },
+        plenary: {
+          game: "Suggestions Trivia Race",
+          questions: ["What word do we use to make a group invitation?", "Complete: '_____ play tag!'"],
+          rubric: true
+        }
+      },
+      "6-2": {
+        topic: "Suggestions with 'Let's' & Action Verbs - Written Practice",
+        bookRef: "Student Book p. 51 | Workbook p. 35",
+        cnb: "CNB 2nd Grade - Consolidating 'Let's' structures with sports and playground verbs in written form.",
+        habit: "Habit 5: Seek First to Understand, Then to Be Understood (Listening to peer suggestions politely).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "bounce, throw, catch, watch, play tag, let's",
+          song: "Sing 'Outside' with sports and invitation movements.",
+          activity: "Show picture of kids playing basketball. Ask: 'What can we say to invite friends?' -> 'Let's play basketball!'"
+        },
+        individual: {
+          instructions: "Workbook p. 35. Complete exercise matching images with correct 'Let's' phrases.",
+          task: "Complete 4 workbook sentences with 'Let's [verb]'.",
+          solution: "1. Let's catch the ball. 2. Let's watch the game. 3. Let's throw the ball. 4. Let's play tag."
+        },
+        cooperative: {
+          instructions: "Teams of 3. Create a mini playground poster titled 'Let's Play!' listing 3 group suggestions."
+        },
+        plenary: {
+          game: "Pasapalabra Grammar Grand Prix",
+          questions: ["What base form of verb follows 'Let's'?", "Give a suggestion for a rainy day inside."],
+          rubric: true
+        }
+      },
+
+      // WEEK 7
+      "7-1": {
+        topic: "Review Units 1 to 3 - Comprehensive Grammar Integration",
+        bookRef: "Workbook pp. 40, 41",
+        cnb: "CNB 2nd Grade - Consolidating structures from Units 1 to 3 (Present Continuous, Are there...?, What's... like?, Imperatives, Like + infinitive, Let's).",
+        habit: "Habit 3: Put First Things First (Prioritizing revision and systematic review of key grammar structures).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "Comprehensive Units 1-3 Vocabulary",
+          song: "Medley: Chorus of 'Our Classroom', 'Hot or Cold?', and 'Outside'!",
+          activity: "Flashcard Mix & Match challenge on board covering all 3 units."
+        },
+        individual: {
+          instructions: "Workbook pp. 40-41. Complete review exercises for Units 1 to 3.",
+          task: "Solve 5 mixed grammar review questions in Workbook pp. 40-41.",
+          solution: "1. We're reading. 2. Are there any markers? Yes, there are. 3. What's the weather like? It's sunny. 4. Put on your jacket. 5. Let's play soccer."
+        },
+        cooperative: {
+          instructions: "Group Challenge (4 students). Station Rotation: Station 1 (Present Continuous & Are there?), Station 2 (What's it like? & Imperatives), Station 3 (Like to... & Let's). Complete 1 task per station."
+        },
+        plenary: {
+          game: "Units 1-3 Master Grammar Trivia Quiz",
+          questions: ["Which unit topic uses 'Let's'?", "How do you ask about weather using 'like'?"],
+          rubric: true
+        }
+      },
+      "7-2": {
+        topic: "Review Units 1 to 3 - Assessment & Learning Reflection",
+        bookRef: "Workbook pp. 40, 41 Evaluation",
+        cnb: "CNB 2nd Grade - Evaluating communicative and grammatical skills across Units 1 through 3.",
+        habit: "Habit 7: Sharpen the Saw (Reflecting on personal learning progress and celebrating growth).",
+        warmup: {
+          title: "Warm-Up & Song (~5 min)",
+          vocab: "Full unit grammar synthesis",
+          song: "Student Choice Song from Units 1, 2, or 3.",
+          activity: "Mindfulness breathing exercise & positive growth-mindset affirmations before evaluation."
+        },
+        individual: {
+          instructions: "Complete the final Unit 1-3 Grammar Integration Assessment in Workbook pp. 40-41.",
+          task: "Independently complete sections A (Present Continuous / Are there...?), B (Imperatives & Descriptions), C (Like to... & Let's).",
+          solution: "Teacher evaluates individual papers according to Unit 1-3 mastery criteria."
+        },
+        cooperative: {
+          instructions: "Peer Checklist Review. In pairs, review completed workbook checklists using leader rubric guidelines."
+        },
+        plenary: {
+          game: "Celebration Reflection Circle & Plenary Rubric",
+          questions: ["Which grammar topic was your favorite?", "How did your team synergize during reviews?"],
+          rubric: true
+        }
+      }
+    };
+
+    function updatePlan() {
+      const week = document.getElementById('weekSelect').value;
+      const cls = document.getElementById('classSelect').value;
+      const key = `${week}-${cls}`;
+      const data = planData[key];
+
+      if (!data) return;
+
+      // Update Metadata
+      document.getElementById('metaDisplay').innerHTML = `
+        <span><strong>Grade:</strong> 2nd Primary</span>
+        <span><strong>Subject:</strong> Grammar (English)</span>
+        <span><strong>Teacher:</strong> Nicole De León</span>
+        <span><strong>Date Range:</strong> Jan 11 - Feb 26 (Week ${week}, Class ${cls})</span>
+        <span><strong>Book Ref:</strong> ${data.bookRef}</span>
+        <span><strong>Leader in Me:</strong> ${data.habit}</span>
+      `;
+
+      // Tab 1: Warm Up
+      document.getElementById('tab1').innerHTML = `
+        <h3>${data.warmup.title}</h3>
+        <span class="badge">CNB: ${data.cnb}</span>
+        <p><strong>Leader Habit Integration:</strong> ${data.habit}</p>
+        <br>
+        <p><strong>Target Vocabulary:</strong> <em>${data.warmup.vocab}</em></p>
+        <p><strong>Unit Song / Track:</strong> ${data.warmup.song}</p>
+        <div class="interactive-box">
+          <strong>Warm-Up Dynamic:</strong> ${data.warmup.activity}
+        </div>
+      `;
+
+      // Tab 2: Individual Work
+      document.getElementById('tab2').innerHTML = `
+        <h3>II) Individual Work (20 minutes)</h3>
+        <p><strong>Instructions:</strong> ${data.individual.instructions}</p>
+        <br>
+        <p><strong>Student Notebook/Workbook Task:</strong></p>
+        <p style="background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">${data.individual.task}</p>
+        
+        <button class="solution-btn" onclick="toggleSolution('sol1')">👁️ Show / Hide Solution Guidance</button>
+        <div id="sol1" class="solution-content">
+          <strong>Teacher Answer Key / Expected Output:</strong><br>
+          ${data.individual.solution}
+        </div>
+      `;
+
+      // Tab 3: Cooperative Work
+      document.getElementById('tab3').innerHTML = `
+        <h3>III) Cooperative / Teamwork Activity (30 minutes)</h3>
+        <p><strong>Structured Group Activity:</strong></p>
+        <div class="interactive-box" style="background-color: #e8f4f8; border-color: var(--blue-main);">
+          ${data.cooperative.instructions}
+        </div>
+        <br>
+        <p><strong>Roles Assignment:</strong> Speaker, Timekeeper, Materials Leader, Writer.</p>
+        <p><strong>Soft Skills Focus:</strong> Teamwork, Active Listening, Respect, Communication.</p>
+      `;
+
+      // Tab 4: Plenary & Game
+      document.getElementById('tab4').innerHTML = `
+        <h3>IV) Plenary Session & Interactive Game (15 minutes)</h3>
+        <p><strong>Interactive Game / Dynamic:</strong> ${data.plenary.game}</p>
+        <br>
+        <p><strong>Checking Questions for Teams:</strong></p>
+        <ul>
+          ${data.plenary.questions.map(q => `<li>${q}</li>`).join('')}
+        </ul>
+        
+        <br>
+        <h3>Plenary Assessment Rubric (Group Performance)</h3>
+        <table class="rubric-table">
+          <thead>
+            <tr>
+              <th>Criteria</th>
+              <th>4 - Excellent</th>
+              <th>3 - Good</th>
+              <th>2 - Developing</th>
+              <th>1 - Needs Improvement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Vocabulary & Grammar</strong></td>
+              <td>Accurate use of target grammar & vocab.</td>
+              <td>Minor errors, clear meaning.</td>
+              <td>Frequent errors in structure.</td>
+              <td>Unable to use key vocab.</td>
+            </tr>
+            <tr>
+              <td><strong>Clarity & Voice</strong></td>
+              <td>Speaks clearly and confidently.</td>
+              <td>Mostly clear speaker.</td>
+              <td>Low voice, difficult to hear.</td>
+              <td>Unclear presentation.</td>
+            </tr>
+            <tr>
+              <td><strong>Teamwork & Roles</strong></td>
+              <td>Equal participation, strong synergy.</td>
+              <td>Most members participated.</td>
+              <td>1-2 members dominated.</td>
+              <td>Lack of collaboration.</td>
+            </tr>
+            <tr>
+              <td><strong>Answering Questions</strong></td>
+              <td>Answers questions accurately.</td>
+              <td>Answers with teacher help.</td>
+              <td>Struggles to answer.</td>
+              <td>No response.</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    }
+
+    function switchTab(tabId, btnElement) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      btnElement.classList.add('active');
+    }
+
+    function toggleSolution(id) {
+      const el = document.getElementById(id);
+      if (el.style.display === "block") {
+        el.style.display = "none";
+      } else {
+        el.style.display = "block";
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Initialize first plan on load
+    window.onload = function() {
+      updatePlan();
+    };
+  </script>
+</body>
+</html>
